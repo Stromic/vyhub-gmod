@@ -173,7 +173,7 @@ hook.Add("vyhub_ready", "vyhub_group_vyhub_ready", function ()
 
 	local _setusergroup = meta_ply.SetUserGroup
 
-	if not ULib and not serverguard and not sam and not (xAdmin and xAdmin.Admin.RegisterBan) then
+	if not ULib and not serverguard and not sam and not (xAdmin and xAdmin.Admin.RegisterBan) and not sAdmin then
 		meta_ply.SetUserGroup = function(ply, name, ignore_vh)
 			if not ignore_vh then
 				if VyHub.Group:set(ply:SteamID64(), name) or VyHub.Config.disable_group_check then
@@ -294,6 +294,21 @@ hook.Add("vyhub_ready", "vyhub_group_vyhub_ready", function ()
                 end)
             else
                 sam_setrank(ply, rank, length)
+            end
+        end
+    end
+
+    if sAdmin then
+        local sadmin_setrank = sAdmin.setRank --(ply, rank, length)
+        function sAdmin.player.setRank(ply, rank, length, ignore_vh)
+            if not ignore_vh then
+                VyHub.Group:set(ply:SteamID64(), rank, seconds, nil, function(success)
+                    if success then
+                        sadmin_setrank(ply, rank, seconds)
+                    end
+                end)
+            else
+                sadmin_setrank(ply, rank, seconds)
             end
         end
     end
